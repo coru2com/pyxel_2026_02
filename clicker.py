@@ -1,7 +1,6 @@
 import pyxel
 import sys
 import json
-import qrcode
 
 is_web = sys.platform == "emscripten"
 if is_web:
@@ -10,6 +9,38 @@ if is_web:
 SCENE_MAIN = 0
 SCENE_SHOP = 1
 SCENE_QR = 2
+
+QR_MATRIX = [
+    [False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False],
+    [False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False],
+    [False, False, True, True, True, True, True, True, True, False, True, True, True, True, False, False, True, False, True, False, True, True, True, True, True, True, True, False, False],
+    [False, False, True, False, False, False, False, False, True, False, True, True, False, True, True, False, True, False, True, False, True, False, False, False, False, False, True, False, False],
+    [False, False, True, False, True, True, True, False, True, False, False, True, True, False, False, True, True, False, False, False, True, False, True, True, True, False, True, False, False],
+    [False, False, True, False, True, True, True, False, True, False, True, True, True, True, True, False, True, True, True, False, True, False, True, True, True, False, True, False, False],
+    [False, False, True, False, True, True, True, False, True, False, False, True, True, False, False, False, False, True, True, False, True, False, True, True, True, False, True, False, False],
+    [False, False, True, False, False, False, False, False, True, False, False, False, True, False, False, False, True, False, False, False, True, False, False, False, False, False, True, False, False],
+    [False, False, True, True, True, True, True, True, True, False, True, False, True, False, True, False, True, False, True, False, True, True, True, True, True, True, True, False, False],
+    [False, False, False, False, False, False, False, False, False, False, True, False, False, True, False, False, False, False, True, False, False, False, False, False, False, False, False, False, False],
+    [False, False, True, False, True, True, False, True, True, True, False, True, True, True, False, True, True, False, False, False, True, False, False, True, False, True, True, False, False],
+    [False, False, False, True, True, False, False, True, False, False, False, True, True, True, False, False, False, False, False, False, False, True, False, False, False, True, False, False, False],
+    [False, False, True, False, True, False, True, True, True, True, False, False, False, True, True, False, False, False, True, True, True, False, True, False, False, False, False, False, False],
+    [False, False, False, False, True, False, False, True, False, True, False, False, True, False, True, True, False, True, False, True, False, False, True, True, True, False, False, False, False],
+    [False, False, True, True, False, False, True, True, True, False, False, True, True, True, False, True, True, False, False, True, True, False, True, False, True, True, True, False, False],
+    [False, False, False, True, False, False, False, True, False, False, True, False, True, True, False, False, False, True, False, True, True, True, True, False, False, False, True, False, False],
+    [False, False, False, True, True, True, True, False, True, False, True, True, False, False, True, True, False, False, False, True, True, False, True, False, True, True, False, False, False],
+    [False, False, True, False, True, True, False, True, False, False, True, True, True, False, True, False, True, True, True, False, False, True, True, False, False, False, True, False, False],
+    [False, False, False, False, False, True, True, False, True, True, False, True, True, True, False, True, False, False, True, True, True, True, True, True, True, True, True, False, False],
+    [False, False, False, False, False, False, False, False, False, False, True, True, False, False, True, False, False, False, True, False, False, False, True, False, True, False, True, False, False],
+    [False, False, True, True, True, True, True, True, True, False, True, False, True, True, True, False, False, False, True, False, True, False, True, False, True, True, True, False, False],
+    [False, False, True, False, False, False, False, False, True, False, True, True, False, False, True, False, False, True, True, False, False, False, True, False, False, True, True, False, False],
+    [False, False, True, False, True, True, True, False, True, False, False, True, True, True, True, True, False, False, True, True, True, True, True, True, False, True, False, False, False],
+    [False, False, True, False, True, True, True, False, True, False, True, True, False, False, True, True, False, False, False, False, True, False, True, True, True, True, True, False, False],
+    [False, False, True, False, True, True, True, False, True, False, True, False, False, True, True, True, False, True, False, True, True, False, True, False, True, True, False, False, False],
+    [False, False, True, False, False, False, False, False, True, False, False, False, True, False, False, False, False, False, False, True, True, False, True, False, True, False, False, False, False],
+    [False, False, True, True, True, True, True, True, True, False, True, True, True, False, True, False, True, False, False, False, False, True, True, True, True, True, True, False, False],
+    [False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False],
+    [False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False],
+]
 
 class App:
     def __init__(self):
@@ -40,7 +71,7 @@ class App:
         self.load_data()
         self.recalc_costs()
         
-        self.qr_matrix = self.generate_qr_matrix("https://lin.ee/5uqWDqi")
+        self.qr_matrix = QR_MATRIX
         pyxel.run(self.update, self.draw)
 
     def recalc_costs(self):
@@ -67,15 +98,6 @@ class App:
     @property
     def auto_pps(self):
         return sum(i["add"] * i["count"] for i in self.auto_items)
-
-    def generate_qr_matrix(self, data):
-        try:
-            qr = qrcode.QRCode(version=1, border=2)
-            qr.add_data(data)
-            qr.make(fit=True)
-            return qr.get_matrix()
-        except:
-            return None
 
     def save_data(self):
         data = {
